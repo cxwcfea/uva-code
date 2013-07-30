@@ -9,18 +9,12 @@
 typedef int State[25];
 
 int dir[STEP][2] = {{-1, -2}, {-2, -1}, {-2, 1}, {-1, 2}, {1, 2}, {2, 1}, {2, -1}, {-1, -2}};
+State st[MAXSTATE];
 State goal = {1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, -1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0};
 char input[STEP];
 int head[MAXHASHSIZE];
 int next[MAXSTATE];
-
-struct ChessState {
-	State s;
-	int move;
-	int space;
-};	
-
-ChessState st[MAXSTATE];
+int dist[MAXSTATE];
 
 void init_lookup_table() {
 	memset(head, 0, sizeof(head));
@@ -36,10 +30,10 @@ int hash(State &s) {
 }
 
 bool try_to_insert(int s) {
-	int h = hash(st[s].s);
+	int h = hash(st[s]);
 	int n = head[h];	
 	while (n) {
-		if (memcmp(st[s].s, st[n].s, sizeof(st[s].s)) == 0) return false;
+		if (memcmp(st[s], st[n], sizeof(st[s])) == 0) return false;
 		n = next[n];
 	}
 	next[s] = head[h];
@@ -49,16 +43,12 @@ bool try_to_insert(int s) {
 
 int resovle() {
 	init_lookup_table();
-	int front = 1, rear = 2, i, x, y;
-	st[1].move = 0;
+	memset(dist, 0, sizeof(dist));
+	int front = 1, rear = 2;
 	while (front < rear) {
-		if (current.move == 11) break;
-		ChessState &current = st[front];
+		State &current = st[front];
 		++front;
-		if (memcmp(current.s, goal, sizeof(goal)) == 0) return current.move; 
-		for (i = 0; i < STEP; ++i) {
-				
-		}	
+		if (memcmp(current, goal, sizeof(current)) == 0) return dist[front]; 
 	}
 	return 11;
 }
@@ -67,7 +57,7 @@ int main() {
 #ifdef Debug
 	freopen("10422.in", "r", stdin);
 #endif
-	int n, j, k, temp;
+	int n, j, k;
 	scanf("%d", &n);
 	getchar();
 	for (int i = 0; i < n; ++i) {
@@ -75,21 +65,19 @@ int main() {
 			fgets(input, STEP, stdin);
 			for (k = 0; k < MAXN; ++k) {
 				if (input[k] != ' ') {
-					st[1].s[j*5+k] = input[k]-'0';
+					st[1][j*5+k] = input[k]-'0';
 				} else {
-					temp = j*5+k
-					st[1].s[temp] = -1;
-					st[1].space = temp; 
+					st[1][j*5+k] = -1;
 				}
 			}		
 		}
 		for (j = 0; j < MAXN; ++j) {
 			for (k = 0; k < MAXN; ++k) {
-				printf("%d ", st[1].s[j*5+k]);
+				printf("%d ", st[1][j*5+k]);
 			}
 			printf("\n");
 		}
-		printf("%d\n", hash(st[1].s));
+		printf("%d\n", hash(st[1]));
 		printf("\n");
 	}
 	return 0;
