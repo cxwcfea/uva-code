@@ -2,8 +2,8 @@
 #include<cstring>
 
 #define MAXN 5
-#define MAXSTATE 1000000
-#define MAXHASHSIZE 1000003
+#define MAXSTATE 5200500
+#define MAXHASHSIZE 5000003
 #define STEP 8
 
 typedef int State[25];
@@ -41,14 +41,43 @@ bool try_to_insert(int s) {
 	return true;
 }
 
-int resovle() {
+int resolve() {
 	init_lookup_table();
 	memset(dist, 0, sizeof(dist));
-	int front = 1, rear = 2;
+	int front = 1, rear = 2, i, j, x, y, newx, newy, p;
 	while (front < rear) {
+		if (dist[front] > 10) break;
 		State &current = st[front];
-		++front;
+		if (dist[front] == 7) {
+		for (j = 0; j < MAXN; ++j) {
+			for (int k = 0; k < MAXN; ++k) {
+				printf("%2d ", current[j*5+k]);
+			}
+			printf("\n");
+		}
+		printf("front %d\n", front);
+		}
 		if (memcmp(current, goal, sizeof(current)) == 0) return dist[front]; 
+		for (j = 0; j < 25; ++j) {
+			if (current[j] == -1) break;
+		}
+		x = j/5;
+		y = j%5;
+		for (i = 0; i < STEP; ++i) {
+			newx = x+dir[i][0];
+			newy = y+dir[i][1];
+			if (newx < 0 || newx > 4 || newy < 0 || newy > 4) continue;
+			p = newx*5+newy;
+			State &t = st[rear];
+			memcpy(&t, &current, sizeof(current));
+			t[j] = t[p];
+			t[p] = -1;
+			if (try_to_insert(rear)) {
+				dist[rear] = dist[front]+1;
+				++rear;
+			}
+		}
+		++front;
 	}
 	return 11;
 }
@@ -57,7 +86,7 @@ int main() {
 #ifdef Debug
 	freopen("10422.in", "r", stdin);
 #endif
-	int n, j, k;
+	int n, j, k, result;
 	scanf("%d", &n);
 	getchar();
 	for (int i = 0; i < n; ++i) {
@@ -71,6 +100,13 @@ int main() {
 				}
 			}		
 		}
+		result = resolve();
+		if (result > 10) {
+			printf("Unsolvable in less than 11 move(s).\n");
+		} else {
+			printf("Solvable in %d move(s).\n", result);
+		}
+		/*
 		for (j = 0; j < MAXN; ++j) {
 			for (k = 0; k < MAXN; ++k) {
 				printf("%d ", st[1][j*5+k]);
@@ -79,6 +115,7 @@ int main() {
 		}
 		printf("%d\n", hash(st[1]));
 		printf("\n");
+		*/
 	}
 	return 0;
 }
