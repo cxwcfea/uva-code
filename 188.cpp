@@ -8,11 +8,10 @@
 char input[MAXN];
 int value[LEN]; 
 int vis[LEN];
-int max_value;
 
 int resolve(int n) {
 	int v, i, j;
-	for (i = max_value; ; ++i) {
+	for (i = 1; ; ++i) {
 		memset(vis, 0, sizeof(vis));
 		for (j = 0; j < n; ++j) {
 			v = (i/value[j])%n;
@@ -32,7 +31,6 @@ int main() {
 	memset(value, 0, sizeof(value));
 	char *p;
 	int v, i, result; 
-	max_value = 0;
 	while (fgets(input, MAXN, stdin)) {
 		p = input;
 		v = 0;
@@ -41,7 +39,6 @@ int main() {
 			if ((*p) == ' ') {
 				if (v > 0) {
 					value[i++] = v;
-					if (v > max_value) max_value = v;
 					v = 0;
 				}
 				++p;
@@ -52,7 +49,6 @@ int main() {
 		}
 		if (v > 0) {
 			value[i++] = v;
-			if (v > max_value) max_value = v;
 		}
 		result = resolve(i);
 		printf("%s", input);
