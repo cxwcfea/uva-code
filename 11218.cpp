@@ -6,45 +6,52 @@ using namespace std;
 #define MAXN 9
 #define C_LEN 81
 
-int digit[MAXN];
 int max_score;
+int b[MAXN];
+int n;
 
 struct Combination {
 	int score;
-	int value;
-	void init(int a, int b, int c) {
-		value = a*100 + b*10 + c;
+	int a, b, c;
+	void init(int _a, int _b, int _c) {
+		a = _a;
+		b = _b;
+		c = _c;
 	}
 };
 
 Combination comb[C_LEN];
 
 bool check() {
-	if (!((digit[0] < digit[1]) && (digit[1] < digit[2]))) {
-		return false;
-	}
-	if (!((digit[3] < digit[4]) && (digit[4] < digit[5]))) {
-		return false;
-	}
-	if (!((digit[6] < digit[7]) && (digit[7] < digit[8]))) {
-		return false;
+	int temp[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	temp[comb[b[0]].a] = 1;
+	temp[comb[b[0]].b] = 1;
+	temp[comb[b[0]].c] = 1;
+	temp[comb[b[1]].a] = 1;	
+	temp[comb[b[1]].b] = 1;	
+	temp[comb[b[1]].c] = 1;	
+	temp[comb[b[2]].a] = 1;	
+	temp[comb[b[2]].b] = 1;	
+	temp[comb[b[2]].c] = 1;	
+	for (int i = 1; i <= 9; ++i) {
+		if (!temp[i]) return false;
 	}
 	return true;
 }
 
-void init() {
-	for (int i = 1; i <= 9; ++i)
-		digit[i-1] = i; 
-}
-
-bool check2() {
-	
-}
-
-void generate_subset(int cur, int *b) {
-	if (cur > 2) return;
-	if (cur == 2) {
-
+void generate_subset(int cur) {
+	int ts = 0;
+	if (cur == 3) {
+		if (check()) {
+			ts = comb[b[0]].score + comb[b[1]].score + comb[b[2]].score;	
+			if (ts > max_score) max_score = ts;
+		}
+		return;
+	}
+	int s = cur ? b[cur-1]+1 : 0;
+	for (int i = s; i < n; ++i) {
+		b[cur] = i;
+		generate_subset(cur+1);
 	}
 }
 
@@ -52,34 +59,17 @@ int main() {
 #ifdef Debug
 	freopen("11218.in", "r", stdin);
 #endif
-	int n, a, b, c, s, ts, cases = 0;
+	int a, b, c, s, ts, cases = 0;
 	while (1) {
 		scanf("%d", &n);
 		if (!n) break;
 		max_score = 0;
-		init();
 		for (int i = 0; i < n; ++i) {
 			scanf("%d%d%d%d", &a, &b, &c, &s);
 			comb[i].score = s;
 			comb[i].init(a, b, c);
 		}
-		do {
-			if (!check()) continue;
-			a = digit[0]*100 + digit[1]*10 + digit[2];
-			b = digit[3]*100 + digit[4]*10 + digit[5];
-			c = digit[6]*100 + digit[7]*10 + digit[8];
-			ts = s = 0;
-			for (int i = 0; i < n; ++i) {
-				if (comb[i].value == a || comb[i].value == b || comb[i].value == c) {
-					++s;
-					ts += comb[i].score;
-				}
-				if (s == 3) break;
-			}
-			if (s == 3) {
-				if (ts > max_score) max_score = ts;
-			}
-		} while (next_permutation(digit, digit+MAXN));
+		generate_subset(0);
 		if (max_score > 0) {
 			printf("Case %d: %d\n", ++cases, max_score);
 		} else {
