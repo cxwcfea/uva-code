@@ -34,7 +34,7 @@ int main() {
 			unsigned int helper = 0;
 			for (j = i-1; j >= 0; --j) {
 				temp = 1u << j;
-				if ((temp & max) && ((helper|temp) <= u)) {
+				if (((temp&max) && ((helper|temp) <= u)) || (helper|temp) <= l) {
 					helper |= temp;
 				}
 			}
