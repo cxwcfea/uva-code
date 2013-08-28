@@ -14,7 +14,7 @@ bool possible(int time) {
 	for (int i = 0; i < n; ++i) {
 		if (floor[i] <= last_stop) continue;
 		time_to_i = time_to_last_stop + (floor[i]-last_stop)*20;
-		if (time_to_i < time) continue;
+		if (time_to_i <= time) continue;
 		// need another stop, and with this extra stop the time to floor[i] need <= time
 		// formular: assume should stop at x, greedy algorithm to select a x which x >= floor[i],
 		// so other unchecked floor will closer to x 
@@ -31,10 +31,8 @@ bool possible(int time) {
 }
 
 void solve() {
-	int max = floor[n-1]*4 + 20*(floor[n-1]-floor[0])-1;
+	int max = 20*floor[n-1]+1;
 	int i, mid, min = 0;
-	result[0] = 1;
-	result[1] = floor[n-1];
 	while (min < max) {
 		mid = (max+min)/2;
 		if (possible(mid)) {
