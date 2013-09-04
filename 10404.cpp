@@ -21,7 +21,7 @@ int solve() {
 			continue;
 		}
 		for (int j = 0; j < m; ++j) {
-			if (i > num[j] && (d[Stan][i-num[j]] == Ollie)) {
+			if (i > num[j] && (d[Stan][i-num[j]] == Ollie)) {// also means d[Ollie][i-num[j]] == Stan
 				d[Stan][i] = Stan;
 				d[Ollie][i] = Ollie;
 			}
