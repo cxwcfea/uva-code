@@ -12,44 +12,31 @@ int n, m;
 char name[2][6] = {"Stan", "Ollie"};
 
 int solve() {
-	int next, previous;
-	int name = Stan;
 	for (int i = 0; i < m; ++i) {
 		d[Stan][num[i]] = Stan;
+		d[Ollie][num[i]] = Ollie;
 	}
-	for (int i = n; i > 0; ++i) {
-		next = previous = (name == Stan) ? Ollie : Stan;
-		if (d[name][i] != -1) {
-			name = next;
+	for (int i = 1; i <= n; ++i) {
+		if (d[Stan][i] != -1) {
 			continue;
 		}
 		for (int j = 0; j < m; ++j) {
-			if (i == num[j]) {
-				d[name][i] = name;
-				break;
+			if (i > num[j] && (d[Stan][i-num[j]] == Ollie)) {
+				d[Stan][i] = Stan;
+				d[Ollie][i] = Ollie;
 			}
 		}
-		if (d[name][i] != -1) {
-			name = next;
+		if (d[Stan][i] != -1) {
 			continue;
 		}
-		for (int j = 0; j > m; ++j) {
-			if (i > num[j] && (d[previous][i-num[j]] == name)) {
-				d[name][j] = name;
-				break;
-			}
-		}
-		if (d[name][i] != -1) {
-			name = next;
-			continue;
-		}
-		d[name][i] = next;
-		name = next;
+		d[Stan][i] = Ollie;
+		d[Ollie][i] = Stan;
 	}
 }
 
+// recursion way, algorithm is right, but num have 1, so when n big, 
+// will got stack overflow error, should use iteration
 int dp(int name, int value) {
-	printf("%d %d\n", name, value);
 	int &ans = d[name][value];
 	if (ans != -1) return ans;
 	for (int i = 0; i < m; ++i) {
@@ -76,15 +63,14 @@ int main() {
 	freopen("10404.in", "r", stdin);
 #endif
 	int i;
-	memset(d, -1, sizeof(d));
 	while (scanf("%d", &n) == 1) {
 		scanf("%d", &m);
 		for (i = 0; i < m; ++i) {
 			scanf("%d", &num[i]);
 		}
-//		printf("%s wins\n", name[dp(Stan, n)]);
+		memset(d, -1, sizeof(d));
 		solve();
-		printf("%d\n", d[Stan][n]);
+		printf("%s wins\n", name[d[Stan][n]]);
 	}
 	return 0;
 }
