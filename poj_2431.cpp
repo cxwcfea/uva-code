@@ -1,22 +1,17 @@
 #include<cstdio>
+#include<cstdlib>
 #include<queue>
 #include<algorithm>
 
 using namespace std;
 
 #define MAXN 10010
-typedef pair<int, int> P;
+typedef pair<int, int> Pair;
 
-P s[MAXN];
+Pair s[MAXN];
 
-bool compare(const P &a, const P &b) {
-	return b.first-a.first;
-}
-
-int compare1(const void *a, const void *b) {
-	P *_a = (P*)a;
-	P *_b = (P*)b;
-	return _b->first - _a->first;
+bool compare(const Pair &a, const Pair &b) {
+	return b.first < a.first;
 }
 
 int main() {
@@ -30,11 +25,10 @@ int main() {
 	s[0].first = 0;
 	s[0].second = 0;
 	for (int i = 1; i < N; ++i) {
-		scanf("%d%d", &(s[i].first), &(s[i].second));
+		scanf("%d%d", &s[i].first, &s[i].second);
 	}
 	scanf("%d%d",  &L, &P);
-	//sort(s, s+17, compare);
-	qsort(s, N, sizeof(P), compare1); 
+	sort(s, s+N, compare);
 
 	priority_queue<int> que;
 	int d, result = 0;
@@ -47,7 +41,7 @@ int main() {
 				que.pop();
 				++result;
 			} else {
-				printf("%d\n", -1);
+				printf("-1\n");
 				return 0;
 			}
 		}
