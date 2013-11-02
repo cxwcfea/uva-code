@@ -12,26 +12,22 @@ typedef pair<int, int> pii;
 
 int N, R;
 int u[MAXE], v[MAXE], w[MAXE], next1[MAXE]; // u, v, w represents a line's begin point, end point, weight
-int first[MAXN], d[MAXN], d2[MAXN];
+int first[MAXN], dist[MAXN], dist2[MAXN];
 
 int main() {
 #ifdef Debug
 	freopen("poj_3255.in", "r", stdin);
 #endif
-	int done[MAXN];
-	memset(done, 0, sizeof(done));
 	priority_queue<int, vector<pii>, greater<pii> > que;
 	scanf("%d%d", &N, &R);
-	for (int i = 0; i < N; ++i) {
+	for (int i = 1; i <= N; ++i) {
 		first[i] = -1;
-		d[i] = (i == 0) ? 0 : INF;
-		d2[i] = (i == 0) ? 0 : INF;
+		dist[i] = (i == 1) ? 0 : INF;
+		dist2[i] = INF;
 	}
-	int R2 = 2*R;
+	int R2 = 2 * R;
 	for (int i = 0; i < R2; ++i) {
 		scanf("%d%d%d", &u[i], &v[i], &w[i]);
-		--u[i];
-		--v[i];
 		u[i+1] = v[i];
 		v[i+1] = u[i];
 		w[i+1] = w[i];
@@ -41,25 +37,25 @@ int main() {
 		next1[i] = first[u[i]];
 		first[u[i]] = i;
 	}
-	que.push(make_pair(d[0], 0));
+	que.push(make_pair(dist[1], 1));
 	while (!que.empty()) {
 		pii c = que.top();
 		que.pop();
 		int x = c.second;
-		if (done[x]) continue;
-		done[x] = 1;
+		int d = c.first;
+		if (dist2[x] < d) continue;
 		for (int e = first[x]; e != -1; e = next1[e]) {
-			int t = d[x] + w[e];
-			if (d[v[e]] > t) {
-				swap(d[v[e]], t);
-				que.push(make_pair(d[v[e]], v[e]));
+			int d2 = d + w[e];
+			if (dist[v[e]] > d2) {
+				swap(dist[v[e]], d2);
+				que.push(make_pair(dist[v[e]], v[e]));
 			} 
-			if (d2[v[e]] > t && d[v[e]] < t) {
-				d2[v[e]] = t; 
-				que.push(pii(d2[v[e]], v[e]));
+			if (dist2[v[e]] > d2 && dist[v[e]] < d2) {
+				dist2[v[e]] = d2; 
+				que.push(pii(dist2[v[e]], v[e]));
 			}
 		}
 	}
-	printf("%d\n", d2[N-1]);
+	printf("%d\n", dist2[N]);
 	return 0;
 }
