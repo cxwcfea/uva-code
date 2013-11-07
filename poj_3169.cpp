@@ -28,25 +28,21 @@ int main() {
 		scanf("%d%d%d", &A, &B, &D);
 		edge2[i] = (Edge){A, B, D};	
 	}
-	for (i = 0; i < ML; ++i) {
-		printf("%d %d %d\n", edge1[i].from, edge1[i].to, edge1[i].cost);
-	}
-	for (i = 0; i < MD; ++i) {
-		printf("%d %d %d\n", edge2[i].from, edge2[i].to, edge2[i].cost);
-	}
 	d[0] = 0;
 	for (i = 1; i < N; ++i) {
 		d[i] = INF;	
 	}
 	for (i = 0; i < N; ++i) {
 		for (int i = 0; i < N-1; ++i) {
-			d[i+1] = std::min(d[i+1], d[i]);
+			if (d[i+1] < INF) d[i] = std::min(d[i], d[i+1]);
 		}	
 		for (int i = 0; i < ML; ++i) {
-			d[edge1[i].to-1] = std::min(d[edge1[i].to-1], d[edge1[i].from-1]+edge1[i].cost);
+			if (d[edge1[i].from-1] < INF)
+				d[edge1[i].to-1] = std::min(d[edge1[i].to-1], d[edge1[i].from-1]+edge1[i].cost);
 		}	
 		for (int i = 0; i < MD; ++i) {
-			d[edge2[i].from-1] = std::min(d[edge2[i].from-1], d[edge2[i].to-1]-edge2[i].cost);
+			if (d[edge2[i].to-1] < INF)
+				d[edge2[i].from-1] = std::min(d[edge2[i].from-1], d[edge2[i].to-1]-edge2[i].cost);
 		}	
 	}
 	int ret = d[N-1];
