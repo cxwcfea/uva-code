@@ -64,13 +64,9 @@ void DebugOutput() {
     }
     printf("\n\n");
       */
-    for (int i = 0; i < image_row; ++i) {
-        for (int j = 0; j < image_col; ++j) {
-            if (temp_data[i][j] > 9) {
-                printf("%c", temp_data[i][j]);
-            } else {
-                printf("%d", temp_data[i][j]);
-            }
+    for (int i = 0; i < H; ++i) {
+        for (int j = 0; j < Width; ++j) {
+            printf("%d", temp_data[i][j]);
         }
         printf("\n");
     }
@@ -155,6 +151,27 @@ void CopyImage(int r1, int r2, int c1, int c2) {
         }
         ++r;
     } 
+}
+
+void dfs_p(int r, int c, int cnt) {
+    if (r < 0 || r >= H || c < 0 || c >= Width || temp_data[r][c]) return;
+    temp_data[r][c] = cnt;
+    for (int i = 0; i < 4; ++i) {
+        if (data[r][c] == data[r+dr[i]][c+dc[i]])
+            dfs_p(r + dr[i], c + dc[i], cnt);
+    }
+}
+
+void paint() {
+    memset(temp_data, 0, sizeof(temp_data));
+    int color = 1;
+    for (int i = 0; i < H; ++i) {
+        for (int j = 0; j < Width; ++j) {
+            if (!temp_data[i][j]) {
+                dfs_p(i, j, color++); 
+            }
+        }
+    }
 }
 
 int main() {
