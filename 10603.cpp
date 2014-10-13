@@ -1,226 +1,93 @@
-#include<cstdio>
-#include<cstring>
-#include<ctime>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <ctime>
+#include <queue>
+#include <utility>
+#include <algorithm>
 
 using namespace std;
 
-#define MAXN 200
-#define LEN 40000
-int a, b, c, d, _d, _amount;
-int st[MAXN+1][MAXN+1][MAXN+1];
-typedef enum {
-	ATOB,
-	ATOC,
-	BTOA,
-	BTOC,
-	CTOA,
-	CTOB
-} OP;
+#define MAXN 205
 
-struct State {
-	int _a, _b, _c;
-	int amount;
-	//State(int a1, int b1, int c1, int am):_a(a1),_b(b1),_c(c1),amount(am) {}
-	int last_op;
-	bool valid(int op) {
-		switch (last_op) {
-			case ATOB:
-				if (op == BTOA) return false;
-				break;
-			case ATOC:
-				if (op == CTOA) return false;
-				break;
-			case BTOC:
-				if (op == CTOB) return false;
-				break;
-			case BTOA:
-				if (op == ATOB) return false;
-				break;
-			case CTOA:
-				if (op == ATOC) return false;
-				break;
-			case CTOB:
-				if (op == BTOC) return false;
-				break;
-		}
-		return true;
-	}
-	void init(int a1, int b1, int c1, int am) {
-		_a = a1;
-		_b = b1;
-		_c = c1;
-		amount = am;
-	}
-	int get_max() {
-		if (_a <= d && _a > _d) {
-			_d = _a;
-			_amount = amount;
-		}
-		if (_b <= d && _b > _d) {
-			_d = _b;
-			_amount = amount;
-		}
-		if (_c <= d && _c > _d) {
-			_d = _c; 
-			_amount = amount;
-		}
-	}
+int d;
+int result_amound[MAXN];
+int cup[3];
+
+struct Node {
+	int v[3];
+	int dist_amount;
+    bool operator<(const Node &other) const {
+        return dist_amount > other.dist_amount;
+    }
 };
 
-State q[LEN];
+int dist[MAXN][MAXN];
+bool vis[MAXN][MAXN];
 
-int resolve() {
-	memset(st, 0, sizeof(st));
-	int value, i, temp, _a, _b, _c, amount, ok;
-	int front = 0, rear = 0;
-	_d = 0;
-	_amount = 0;
-	State &s = q[rear];
-	s.init(0, 0, c, 0);
-	s.last_op = 6;
-	s.get_max();
-	st[0][0][c] = 1;
-	++rear;
-	while (front != rear) {
-		State &current = q[front];
-		++front;
-		current.get_max(); 
-		if (_d == d) {
-			return current.amount;
+void update(const Node &n) {
+    for (int i = 0; i < 3; ++i) {
+        if (result_amound[n.v[i]] < 0 || result_amound[n.v[i]] > n.dist_amount) {
+            result_amound[n.v[i]] = n.dist_amount;
+        }
+    } 
+}
+
+void resolve() {
+    priority_queue<Node> nodes;
+    memset(result_amound, -1, sizeof(result_amound));
+    memset(dist, -1, sizeof(dist));
+    memset(vis, 0, sizeof(vis));
+    Node start;
+    start.v[0] = start.v[1] = 0;
+    start.v[2] = cup[2];
+    start.dist_amount = 0;
+    nodes.push(move(start));
+    dist[0][0] = 0;
+	while (!nodes.empty()) {
+        Node u = nodes.top();
+        nodes.pop();
+        if (vis[u.v[0]][u.v[1]]) continue;
+        vis[u.v[0]][u.v[1]] = true;
+        update(u);
+		if (result_amound[d] >= 0) {
+			return;
 		}
-		for (i = 0; i < 6; ++i) {
-			if (!current.valid(i)) continue;
-			ok = 0;
-			switch (i) {
-				case ATOB:
-					temp = b - current._b;	
-					if ((current._a > 0) && (temp > 0)) {
-						ok = 1;
-						amount = current.amount;
-						if (temp >= current._a) {
-							amount += current._a;
-							_a = 0;
-							_b = current._a + current._b;
-						} else {
-							amount += temp; 
-							_a = current._a - temp;
-							_b = b;
-						}
-						_c = current._c;
-					}
-					break;
-				case ATOC:
-					temp = c - current._c;	
-					if ((current._a > 0) && (temp > 0)) {
-						ok = 1;
-						amount = current.amount;
-						if (temp >= current._a) {
-							amount += current._a;
-							_a = 0;
-							_c = current._a + current._c;
-						} else {
-							amount += temp; 
-							_a = current._a - temp;
-							_c = c;
-						}
-						_b = current._b;
-					}
-					break;
-				case BTOA:
-					temp = a - current._a;	
-					if ((current._b > 0) && (temp > 0)) {
-						ok = 1;
-						amount = current.amount;
-						if (temp >= current._b) {
-							amount += current._b;
-							_b = 0;
-							_a = current._b + current._a;
-						} else {
-							amount += temp; 
-							_b = current._b - temp;
-							_a = a;
-						}
-						_c = current._c;
-					}
-					break;
-				case BTOC:
-					temp = c - current._c;	
-					if ((current._b > 0) && (temp > 0)) {
-						ok = 1;
-						amount = current.amount;
-						if (temp >= current._b) {
-							amount += current._b;
-							_b = 0;
-							_c = current._b + current._c;
-						} else {
-							amount += temp; 
-							_b = current._b - temp;
-							_c = c;
-						}
-						_a = current._a;
-					}
-					break;
-				case CTOA:
-					temp = a - current._a;	
-					if ((current._c > 0) && (temp > 0)) {
-						ok = 1;
-						amount = current.amount;
-						if (temp >= current._c) {
-							amount += current._c;
-							_c = 0;
-							_a = current._a + current._c;
-						} else {
-							amount += temp; 
-							_c = current._c - temp;
-							_a = a;
-						}
-						_b = current._b;
-					}
-					break;
-				case CTOB:
-					temp = b - current._b;	
-					if ((current._c > 0) && (temp > 0)) {
-						ok = 1;
-						amount = current.amount;
-						if (temp >= current._c) {
-							amount += current._c;
-							_c = 0;
-							_b = current._c + current._b;
-						} else {
-							amount += temp; 
-							_c = current._c - temp;
-							_b = b;
-						}
-						_a = current._a;
-					}
-					break;
-			}
-			if (ok) {
-				if (!st[_a][_b][_c]) {
-					q[rear].init(_a, _b, _c, amount);
-					q[rear].last_op = i;
-					st[_a][_b][_c] = 1;
-					++rear;
-				}
-			}
+		for (int i = 0; i < 3; ++i) {
+            for (int j = 0; j < 3; ++j) {
+                if (i != j && u.v[i] && u.v[j] != cup[j]) {
+                    int amount = min(cup[j], u.v[i] + u.v[j]) - u.v[j];
+                    Node n;
+                    memcpy(&n, &u, sizeof(u)); 
+                    n.v[i] -= amount;
+                    n.v[j] += amount;
+                    n.dist_amount += amount;
+                    int &D = dist[n.v[0]][n.v[1]];
+                    if (D < 0 || n.dist_amount < D) {
+                        D = n.dist_amount;
+                        nodes.push(move(n));
+                    }
+                }
+            }
 		}
 	}
-	return 0;
 }
 
 int main() {
 #ifdef Debug
 	freopen("10603.in", "r", stdin);
 #endif
-	int n, result;
+	int n;
 	scanf("%d", &n);
 	for (int i = 0; i < n; ++i) {
-		scanf("%d%d%d%d", &a, &b, &c, &d);
-		result = resolve();
-		if (_d != d) {
-			result = _amount;
-		}
-		printf("%d %d\n", result, _d);
+		scanf("%d%d%d%d", &cup[0], &cup[1], &cup[2], &d);
+		resolve();
+        for (int i = d; i >= 0; --i) {
+            if (result_amound[i] >= 0) {
+                printf("%d %d\n", result_amound[i], i);
+                break;
+            }
+        }
 	}
 #ifdef Debug
 	printf("time used = %.2lf\n", (double)clock() / CLOCKS_PER_SEC);
